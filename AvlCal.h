@@ -11,6 +11,7 @@ FNode * reNode;
 Second friend functions。
 A new AVL-Tree would be created to save those second-friends and return it for traversing outside.
 */
+void getSecFriend_U2T(UNode * uNode);
 FNode * getSecFriend(UNode * uNode) {
 	reNode = NULL;
 	//traverse this user-tree to call U21-func
@@ -50,7 +51,7 @@ call this func outside with a root node
 void traInsertAVL(FNode * node) {
 	if (node == NULL) return;
 	else {
-		reNode = insertAVL_F(node->info, reNode, 0);//keep updating reNode
+		reNode = insertAVL_F_in(node->info, reNode, 0);//keep updating reNode
 		traInsertAVL(node->left);
 		traInsertAVL(node->right);
 	}
@@ -61,6 +62,7 @@ set_intersection
 Get common friend for SNS.
 And the return-FNode should be destroyed outside.
 */
+void getIntersec_check_insert(FNode * node, FNode * sampleRoot);
 FNode * getSetIntersec(FNode * aFNode, FNode * bFNode) {
 	reNode = NULL;
 	getIntersec_check_insert(aFNode, bFNode);
@@ -78,7 +80,7 @@ void getIntersec_check_insert(FNode * node, FNode * sampleRoot) {
 	} else {
 		FNode * resultNode = getFNodeFromName_F(node->info->name, sampleRoot);
 		if (resultNode) {//exist
-			insertAVL_F(resultNode->info, reNode, 0);
+			insertAVL_F_in(resultNode->info, reNode, 0);
 		}
 		getIntersec_check_insert(node->left, sampleRoot);
 		getIntersec_check_insert(node->right, sampleRoot);
@@ -105,6 +107,7 @@ int setEqual(FNode * aFNode, FNode * bFNode) {
 Set_diffrence -> a-b, 
 Traverse each node of a=tree, find out if it's exist in b-tree or not.
 */
+void getSetDiff_recursion(FNode * minusNode, FNode * sampleRoot);
 FNode * getSetDifference(FNode * aFNode, FNode * bFNode) {
 	reNode = NULL;
 	getSetDiff_recursion(aFNode, bFNode);
@@ -120,7 +123,7 @@ void getSetDiff_recursion(FNode * minusNode, FNode * sampleRoot) {
 	} else {
 		FNode * resultNode = getFNodeFromName_F(minusNode->info->name, sampleRoot);
 		if (resultNode == NULL) {//not exist
-			insertAVL_F(resultNode->info, reNode, 0);
+			insertAVL_F_in(resultNode->info, reNode, 0);
 		}
 		getSetDiff_recursion(minusNode->left, sampleRoot);
 		getSetDiff_recursion(minusNode->right, sampleRoot);
@@ -157,19 +160,16 @@ FNode * setRemove(FNode * aFNode, FNode * bFNode) {
 set_insert.
 Insert a-set into b-set.
 WARNING: it would change b-set, if you wanna get a new tree to storage those sum-data then use getComFriend
-*/
-FNode * insertA2B(FNode * aFNode, FNode * bFNode) {
-	insertA2B_recursion(aFNode, bFNode);
-}
-/*
 Traverse a FNode-AVL-Tree, and insert all nodes into sample tree
 */
-void * insertA2B_recursion(FNode * aFNode, FNode * sampleRoot) {
+
+FNode * insertA2B(FNode * aFNode, FNode * sampleRoot) {
 	if (aFNode == NULL) {
-		return;
+		return NULL;
 	} else {
-		insertAVL_F(aFNode->info, sampleRoot, 0);
-		insertA2B_recursion(aFNode->left, sampleRoot);
-		insertA2B_recursion(aFNode->right, sampleRoot);
+		sampleRoot = insertAVL_F_in(aFNode->info, sampleRoot, 0);
+		sampleRoot = insertA2B(aFNode->left, sampleRoot);
+		sampleRoot = insertA2B(aFNode->right, sampleRoot);
+		return sampleRoot;
 	}
 }

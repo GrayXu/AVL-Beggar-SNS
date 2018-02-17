@@ -1,4 +1,4 @@
-ï»¿#include <Structs.h>
+#include <Structs.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -24,7 +24,7 @@ FNode * getFNodeFromName_F(char * name, FNode * node) {
 			return node;
 		} else if (result < 0) {
 			return getFNodeFromName_F(name, node->left);
-		} else if (result > 0) {
+		} else {//result > 0
 			return getFNodeFromName_F(name, node->right);
 		}
 	}
@@ -35,8 +35,8 @@ Destroy this tree and free all space it had taken except those user info
 */
 void destroyAVL_F(FNode * node) {
 	if (node == NULL) return;
-	destroyAVL_F(node->left); node->left == NULL;
-	destroyAVL_F(node->right); node->right == NULL;
+	destroyAVL_F(node->left); node->left = NULL;
+	destroyAVL_F(node->right); node->right = NULL;
 	free(node);
 }
 
@@ -113,33 +113,36 @@ mode:1 -> show error SNS info , 0 -> not to show
 @return: new root. Nullptr->something bad happen, but it's hard to capture outside,
 	but it would show up at cutting this avl-tree
 */
-FNode * insertAVL_F(Info * newInfo, FNode * node, int mode) {
+int isSame = 0;//check this new node is exist in this AVL tre or not
+int insertAVL_F(FNode * newNode, FNode * root) {
+	isSame = 0;
+	insertAVL_F_in(newNode, root);
+	return isSame;
+}
+
+FNode * insertAVL_F_in(FNode * newNode, FNode * node) {
 
 	if (node == NULL) {//find a right position to insert this new node
-		FNode * newNode = (FNode *)malloc(sizeof(FNode));
 		//initalize new node
 		newNode->left = NULL;
 		newNode->right = NULL;
-		newNode->info = newInfo;
-		newNode->height = 1;
+		/*newNode->info = newInfo;*/
+		newNode->height = 0;
 		node = newNode;
 	}
 
-	int result = strcmp(newInfo->name, node->info->name);
+	int result = strcmp(newNode->info->name, node->info->name);
 
 	if (result == 0){//there is a same name already 
-		if (mode == 1) {
-			printf("This person have been already existed.");//for SNS to show up for users
-		}
-
+		isSame = 1;
 		return NULL;
 	} else {
 		if (result < 0) {
-			node->left = insertAVL_F(newInfo, node->left, mode);
+			node->left = insertAVL_F_in(newNode, node->left);
 
 			//check balance( the part below would be run for many times
 			if (getHeight_F(node->left) - getHeight_F(node->right) == 2) {
-				if (strcmp(newInfo->name, node->left->info->name) < 0) {
+				if (strcmp(newNode->info->name, node->left->info->name) < 0) {
 					node = LL_Rotation_F(node);//make right rotation
 				} else {
 					node = LR_Rotation_F(node);//make left-riight rotation
@@ -147,11 +150,11 @@ FNode * insertAVL_F(Info * newInfo, FNode * node, int mode) {
 			}
 
 		} else {//result > 0
-			node->right = insertAVL_F(newInfo, node->right, mode);
+			node->right = insertAVL_F_in(newNode, node->right);
 
 			//check balance( the part below would be run for many times
 			if (getHeight_F(node->right) - getHeight_F(node->left) == 2) {
-				if (strcmp(newInfo->name, node->right->info->name) > 0) {
+				if (strcmp(newNode->info->name, node->right->info->name) > 0) {
 					node = RR_Rotation_F(node);//make right rotation
 				} else {
 					node = RL_Rotation_F(node);//make left-riight rotation
@@ -180,7 +183,7 @@ FNode * getMinFNode_F(FNode * node) {
 }
 
 /**
-Delete a FNode in this AVL-tree with parameter key( user's name)
+Delete a FNode in this AVL-tree with parameter key( user's name). WOUNDN'T FREE INFO SPACE
 @parameter	key: the key as a user's name to find the correct FNode
 			node: sub-tree's root node
 @return: a new root node for outside updating
@@ -226,7 +229,7 @@ FNode * deleteAVL_F(char * key, FNode * node) {
 			FNode * delNode = node;
 			if (node->left) node = node->left;
 			else node = node->right;
-			free(delNode);
+			//free(delNode);//we just clean its position in this AVL tree
 		}
 	}
 
@@ -260,7 +263,7 @@ UNode * getUNodeFromName_U(char * name, UNode * node) {
 			return node;
 		} else if (result < 0) {
 			return getUNodeFromName_U(name, node->left);
-		} else if (result > 0) {
+		} else{//result > 0
 			return getUNodeFromName_U(name, node->right);
 		}
 	}
@@ -271,8 +274,12 @@ Destroy this tree and free all space it had taken except those user info
 */
 void destroyAVL_U(UNode * node) {
 	if (node == NULL) return;
-	destroyAVL_U(node->left); node->left == NULL;
-	destroyAVL_U(node->right); node->right == NULL;
+	destroyAVL_U(node->left); node->left = NULL;
+	destroyAVL_U(node->right); node->right = NULL;
+	if (node->info) {
+		free(node->info->name);
+		free(node->info);
+	}
 	free(node);
 }
 
@@ -280,9 +287,9 @@ void destroyAVL_U(UNode * node) {
 Get a AVL-Tree's size.
 @retrun a integer.
 */
-int getAvlSize_F(UNode * node) {
+int getAvlSize_U(UNode * node) {
 	if (node == NULL) return 0;
-	return getAvlSize_F(node->left) + getAvlSize_F(node->right) + 1;
+	return getAvlSize_U(node->left) + getAvlSize_U(node->right) + 1;
 }
 
 //This func is only called to reduce checking nullptr when you want to get height of UNode.
@@ -348,10 +355,15 @@ Make sure unode is not a nullptr.
 @return: new root. Nullptr->something bad happen, but it's hard to capture outside,
 but it would show up at cutting this avl-tree
 */
-UNode * insertAVL_U(info * newInfo, UNode * node) {
+void printInfo(int mode);
+UNode * insertAVL_U(Info * newInfo, UNode * node) {
 
 	if (node == NULL) {//find a right position to insert this new node
 		UNode * newNode = (UNode *)malloc(sizeof(UNode));
+		if (newNode == NULL) {
+			printInfo(1);
+			exit(1);
+		}
 		//initalize new node
 		newNode->left = NULL;
 		newNode->right = NULL;
@@ -363,7 +375,7 @@ UNode * insertAVL_U(info * newInfo, UNode * node) {
 	int result = strcmp(newInfo->name, node->info->name);
 
 	if (result == 0) {//there is a same name already 
-		printf("This person have been already existed.");//for SNS to show up for users
+		printf("¸ÃÓÃ»§ÒÑ²Ù×÷¹ý¡£");//for SNS to show up for users
 		return NULL;
 	} else {
 		if (result < 0) {
@@ -458,6 +470,12 @@ UNode * deleteAVL_U(char * key, UNode * node) {
 			UNode * delNode = node;
 			if (node->left) node = node->left;
 			else node = node->right;
+
+			//when you want to delete a UNode, which means this guy would be deleted including all infomation
+			if (delNode->info) {
+				free(delNode->info->name);
+				free(delNode->info);
+			}
 			free(delNode);
 		}
 	}
