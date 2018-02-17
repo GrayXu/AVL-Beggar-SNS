@@ -8,6 +8,7 @@ Info is a struct including all infomations of one user. One user would have only
 typedef struct info {
 	char * name;
 	int ege;
+	int sex;//1->man 0->woman
 	//and othe infomations
 } Info;
 

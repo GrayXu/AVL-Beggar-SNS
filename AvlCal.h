@@ -1,4 +1,4 @@
-#include <AvlUtils.h>
+﻿#include <AvlUtils.h>
 void traInsertAVL(FNode * node);
 
 /*
@@ -33,8 +33,7 @@ void getSecFriend_U2T(UNode * uNode) {
 }
 
 /**
-SET_UNION. 
-Get common friend for SNS.
+SET_UNION.
 */
 FNode * getSetUnion(FNode * aFNode, FNode * bFNode) {
 	reNode = NULL;
@@ -58,7 +57,8 @@ void traInsertAVL(FNode * node) {
 }
 
 /**
-set_intersection to find common friend.
+set_intersection
+Get common friend for SNS.
 And the return-FNode should be destroyed outside.
 */
 FNode * getSetIntersec(FNode * aFNode, FNode * bFNode) {
@@ -172,5 +172,4 @@ void * insertA2B_recursion(FNode * aFNode, FNode * sampleRoot) {
 		insertA2B_recursion(aFNode->left, sampleRoot);
 		insertA2B_recursion(aFNode->right, sampleRoot);
 	}
-
 }

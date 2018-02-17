@@ -1,4 +1,4 @@
-#include <Structs.h>
+﻿#include <Structs.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -38,6 +38,15 @@ void destroyAVL_F(FNode * node) {
 	destroyAVL_F(node->left); node->left == NULL;
 	destroyAVL_F(node->right); node->right == NULL;
 	free(node);
+}
+
+/**
+Get a AVL-Tree's size. 
+@retrun a integer.
+*/
+int getAvlSize_F(FNode * node) {
+	if (node == NULL) return 0;
+	return getAvlSize_F(node->left) + getAvlSize_F(node->right) + 1;
 }
 
 //This func is only called to reduce checking nullptr when you want to get height of FNode.
@@ -100,10 +109,11 @@ FNode * RL_Rotation_F(FNode * oldHead) {
 
 /**
 Make sure node is not a nullptr.
+mode:1 -> show error SNS info , 0 -> not to show
 @return: new root. Nullptr->something bad happen, but it's hard to capture outside,
 	but it would show up at cutting this avl-tree
 */
-FNode * insertAVL_F(info * newInfo, FNode * node) {
+FNode * insertAVL_F(Info * newInfo, FNode * node, int mode) {
 
 	if (node == NULL) {//find a right position to insert this new node
 		FNode * newNode = (FNode *)malloc(sizeof(FNode));
@@ -111,18 +121,21 @@ FNode * insertAVL_F(info * newInfo, FNode * node) {
 		newNode->left = NULL;
 		newNode->right = NULL;
 		newNode->info = newInfo;
-		newNode->height = 0;
+		newNode->height = 1;
 		node = newNode;
 	}
 
 	int result = strcmp(newInfo->name, node->info->name);
 
 	if (result == 0){//there is a same name already 
-		printf("This person have been already existed.");//for SNS to show up for users
+		if (mode == 1) {
+			printf("This person have been already existed.");//for SNS to show up for users
+		}
+
 		return NULL;
 	} else {
 		if (result < 0) {
-			node->left = insertAVL_F(newInfo, node->left);
+			node->left = insertAVL_F(newInfo, node->left, mode);
 
 			//check balance( the part below would be run for many times
 			if (getHeight_F(node->left) - getHeight_F(node->right) == 2) {
@@ -134,7 +147,7 @@ FNode * insertAVL_F(info * newInfo, FNode * node) {
 			}
 
 		} else {//result > 0
-			node->right = insertAVL_F(newInfo, node->right);
+			node->right = insertAVL_F(newInfo, node->right, mode);
 
 			//check balance( the part below would be run for many times
 			if (getHeight_F(node->right) - getHeight_F(node->left) == 2) {
@@ -148,7 +161,7 @@ FNode * insertAVL_F(info * newInfo, FNode * node) {
 	}
 
 	//updata height
-	updateHeight_F(node);
+	updateHeight_F(node);//would update for enough times
 	return node;
 }
 
@@ -261,6 +274,15 @@ void destroyAVL_U(UNode * node) {
 	destroyAVL_U(node->left); node->left == NULL;
 	destroyAVL_U(node->right); node->right == NULL;
 	free(node);
+}
+
+/**
+Get a AVL-Tree's size.
+@retrun a integer.
+*/
+int getAvlSize_F(UNode * node) {
+	if (node == NULL) return 0;
+	return getAvlSize_F(node->left) + getAvlSize_F(node->right) + 1;
 }
 
 //This func is only called to reduce checking nullptr when you want to get height of UNode.
