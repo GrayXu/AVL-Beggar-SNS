@@ -8,7 +8,7 @@ MUST BE FREE after show
 FNode * reNode;
 
 /**
-Second friend functions。
+Second friend functions¡£
 A new AVL-Tree would be created to save those second-friends and return it for traversing outside.
 */
 void getSecFriend_U2T(UNode * uNode);
@@ -27,7 +27,7 @@ void getSecFriend_U2T(UNode * uNode) {
 	if (uNode == NULL) {
 		return;
 	} else {
-		traInsertAVL(uNode->follow);//insert all info to this returning tree
+		traInsertAVL(uNode->following);//insert all info to this returning tree
 		getSecFriend_U2T(uNode->left);
 		getSecFriend_U2T(uNode->right);
 	}
@@ -45,13 +45,13 @@ FNode * getSetUnion(FNode * aFNode, FNode * bFNode) {
 }
 
 /**
-insert all nodes into AVL-tree 
+insert all nodes into AVL-tree
 call this func outside with a root node
 */
 void traInsertAVL(FNode * node) {
 	if (node == NULL) return;
 	else {
-		reNode = insertAVL_F_in(node->info, reNode, 0);//keep updating reNode
+		reNode = insertAVL_F(node->info, reNode);//keep updating reNode
 		traInsertAVL(node->left);
 		traInsertAVL(node->right);
 	}
@@ -59,14 +59,12 @@ void traInsertAVL(FNode * node) {
 
 /**
 set_intersection
-Get common friend for SNS.
 And the return-FNode should be destroyed outside.
 */
 void getIntersec_check_insert(FNode * node, FNode * sampleRoot);
 FNode * getSetIntersec(FNode * aFNode, FNode * bFNode) {
 	reNode = NULL;
 	getIntersec_check_insert(aFNode, bFNode);
-	//get returning node
 	return reNode;
 }
 
@@ -80,7 +78,7 @@ void getIntersec_check_insert(FNode * node, FNode * sampleRoot) {
 	} else {
 		FNode * resultNode = getFNodeFromName_F(node->info->name, sampleRoot);
 		if (resultNode) {//exist
-			insertAVL_F_in(resultNode->info, reNode, 0);
+			insertAVL_F(resultNode->info, reNode);
 		}
 		getIntersec_check_insert(node->left, sampleRoot);
 		getIntersec_check_insert(node->right, sampleRoot);
@@ -98,13 +96,13 @@ int setEqual(FNode * aFNode, FNode * bFNode) {
 		flag = 1;
 	}
 	destroyAVL_F(resultNode);//free this temporary tree
-	
+
 	return flag;
 }
 
 
 /*
-Set_diffrence -> a-b, 
+Set_diffrence -> a-b,
 Traverse each node of a=tree, find out if it's exist in b-tree or not.
 */
 void getSetDiff_recursion(FNode * minusNode, FNode * sampleRoot);
@@ -123,7 +121,7 @@ void getSetDiff_recursion(FNode * minusNode, FNode * sampleRoot) {
 	} else {
 		FNode * resultNode = getFNodeFromName_F(minusNode->info->name, sampleRoot);
 		if (resultNode == NULL) {//not exist
-			insertAVL_F_in(resultNode->info, reNode, 0);
+			insertAVL_F(resultNode->info, reNode);
 		}
 		getSetDiff_recursion(minusNode->left, sampleRoot);
 		getSetDiff_recursion(minusNode->right, sampleRoot);
@@ -167,7 +165,7 @@ FNode * insertA2B(FNode * aFNode, FNode * sampleRoot) {
 	if (aFNode == NULL) {
 		return NULL;
 	} else {
-		sampleRoot = insertAVL_F_in(aFNode->info, sampleRoot, 0);
+		sampleRoot = insertAVL_F(aFNode->info, sampleRoot);
 		sampleRoot = insertA2B(aFNode->left, sampleRoot);
 		sampleRoot = insertA2B(aFNode->right, sampleRoot);
 		return sampleRoot;

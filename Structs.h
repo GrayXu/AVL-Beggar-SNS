@@ -28,7 +28,7 @@ UserNode would be used to set up a AVL-Tree to manage all users without any rela
 typedef struct userNode {
 	Info * info;
 	int height;
-	FNode * follow;
+	FNode * following;
 	FNode * followed;
 	struct userNode * left;
 	struct userNode * right;

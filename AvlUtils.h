@@ -41,7 +41,7 @@ void destroyAVL_F(FNode * node) {
 }
 
 /**
-Get a AVL-Tree's size. 
+Get a AVL-Tree's size.
 @retrun a integer.
 */
 int getAvlSize_F(FNode * node) {
@@ -78,7 +78,7 @@ FNode * LL_Rotation_F(FNode * oldHead) {
 	//change height
 	updateHeight_F(oldLeft);
 	updateHeight_F(oldHead);
-	
+
 	return oldLeft;
 }
 
@@ -108,41 +108,32 @@ FNode * RL_Rotation_F(FNode * oldHead) {
 }
 
 /**
-Make sure node is not a nullptr.
-mode:1 -> show error SNS info , 0 -> not to show
-@return: new root. Nullptr->something bad happen, but it's hard to capture outside,
-	but it would show up at cutting this avl-tree
+@return: new root. Nullptr->something bad happen.
+the parameter-newInfo is set for creat new space for new FNode
 */
-int isSame = 0;//check this new node is exist in this AVL tre or not
-int insertAVL_F(FNode * newNode, FNode * root) {
-	isSame = 0;
-	insertAVL_F_in(newNode, root);
-	return isSame;
-}
-
-FNode * insertAVL_F_in(FNode * newNode, FNode * node) {
+FNode * insertAVL_F(Info * newInfo, FNode * node) {
 
 	if (node == NULL) {//find a right position to insert this new node
 		//initalize new node
+		FNode * newNode = (FNode *)malloc(sizeof(FNode));
+		newNode->info = newInfo;
 		newNode->left = NULL;
-		newNode->right = NULL;
-		/*newNode->info = newInfo;*/
+		newNode->right = NULL;//add to be a leave
 		newNode->height = 0;
 		node = newNode;
 	}
 
-	int result = strcmp(newNode->info->name, node->info->name);
+	int result = strcmp(newInfo->name, node->info->name);
 
-	if (result == 0){//there is a same name already 
-		isSame = 1;
+	if (result == 0){//there is a same name already
 		return NULL;
 	} else {
 		if (result < 0) {
-			node->left = insertAVL_F_in(newNode, node->left);
+			node->left = insertAVL_F(newInfo, node->left);
 
 			//check balance( the part below would be run for many times
 			if (getHeight_F(node->left) - getHeight_F(node->right) == 2) {
-				if (strcmp(newNode->info->name, node->left->info->name) < 0) {
+				if (strcmp(newInfo->name, node->left->info->name) < 0) {
 					node = LL_Rotation_F(node);//make right rotation
 				} else {
 					node = LR_Rotation_F(node);//make left-riight rotation
@@ -150,11 +141,11 @@ FNode * insertAVL_F_in(FNode * newNode, FNode * node) {
 			}
 
 		} else {//result > 0
-			node->right = insertAVL_F_in(newNode, node->right);
+			node->right = insertAVL_F(newInfo, node->right);
 
 			//check balance( the part below would be run for many times
 			if (getHeight_F(node->right) - getHeight_F(node->left) == 2) {
-				if (strcmp(newNode->info->name, node->right->info->name) > 0) {
+				if (strcmp(newInfo->name, node->right->info->name) > 0) {
 					node = RR_Rotation_F(node);//make right rotation
 				} else {
 					node = RL_Rotation_F(node);//make left-riight rotation
@@ -192,7 +183,7 @@ FNode * deleteAVL_F(char * key, FNode * node) {
 	if (node == NULL || key == NULL) {
 		return NULL;
 	}
-	
+
 	int result = strcmp(key, node->info->name);
 	if (result < 0) {//go left
 		node->left = deleteAVL_F(key, node);
@@ -226,10 +217,8 @@ FNode * deleteAVL_F(char * key, FNode * node) {
 				node->right = deleteAVL_F(minFNode->info->name, node->right);
 			}
 		} else {
-			FNode * delNode = node;
 			if (node->left) node = node->left;
 			else node = node->right;
-			//free(delNode);//we just clean its position in this AVL tree
 		}
 	}
 
@@ -374,7 +363,7 @@ UNode * insertAVL_U(Info * newInfo, UNode * node) {
 
 	int result = strcmp(newInfo->name, node->info->name);
 
-	if (result == 0) {//there is a same name already 
+	if (result == 0) {//there is a same name already
 		printf("该用户已操作过。");//for SNS to show up for users
 		return NULL;
 	} else {
