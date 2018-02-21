@@ -1,4 +1,4 @@
-/**
+﻿/**
 Basic Data Structre
 */
 
@@ -9,7 +9,7 @@ typedef struct info {
 	char * name;
 	int age;
 	int sex;//1->man 2->woman
-	//and othe infomations
+			//and othe infomations
 } Info;
 
 /**

@@ -1,4 +1,4 @@
-#include <Structs.h>
+ï»¿#include <Structs.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -114,41 +114,41 @@ the parameter-newInfo is set for creat new space for new FNode
 FNode * insertAVL_F(Info * newInfo, FNode * node) {
 
 	if (node == NULL) {//find a right position to insert this new node
-		//initalize new node
+					   //initalize new node
 		FNode * newNode = (FNode *)malloc(sizeof(FNode));
 		newNode->info = newInfo;
 		newNode->left = NULL;
 		newNode->right = NULL;//add to be a leave
 		newNode->height = 0;
 		node = newNode;
-	}
-
-	int result = strcmp(newInfo->name, node->info->name);
-
-	if (result == 0){//there is a same name already
-		return NULL;
 	} else {
-		if (result < 0) {
-			node->left = insertAVL_F(newInfo, node->left);
+		int result = strcmp(newInfo->name, node->info->name);
 
-			//check balance( the part below would be run for many times
-			if (getHeight_F(node->left) - getHeight_F(node->right) == 2) {
-				if (strcmp(newInfo->name, node->left->info->name) < 0) {
-					node = LL_Rotation_F(node);//make right rotation
-				} else {
-					node = LR_Rotation_F(node);//make left-riight rotation
+		if (result == 0) {//there is a same name already
+			return NULL;
+		} else {
+			if (result < 0) {
+				node->left = insertAVL_F(newInfo, node->left);
+
+				//check balance( the part below would be run for many times
+				if (getHeight_F(node->left) - getHeight_F(node->right) == 2) {
+					if (strcmp(newInfo->name, node->left->info->name) < 0) {
+						node = LL_Rotation_F(node);//make right rotation
+					} else {
+						node = LR_Rotation_F(node);//make left-riight rotation
+					}
 				}
-			}
 
-		} else {//result > 0
-			node->right = insertAVL_F(newInfo, node->right);
+			} else {//result > 0
+				node->right = insertAVL_F(newInfo, node->right);
 
-			//check balance( the part below would be run for many times
-			if (getHeight_F(node->right) - getHeight_F(node->left) == 2) {
-				if (strcmp(newInfo->name, node->right->info->name) > 0) {
-					node = RR_Rotation_F(node);//make right rotation
-				} else {
-					node = RL_Rotation_F(node);//make left-riight rotation
+				//check balance( the part below would be run for many times
+				if (getHeight_F(node->right) - getHeight_F(node->left) == 2) {
+					if (strcmp(newInfo->name, node->right->info->name) > 0) {
+						node = RR_Rotation_F(node);//make right rotation
+					} else {
+						node = RL_Rotation_F(node);//make left-riight rotation
+					}
 				}
 			}
 		}
@@ -176,7 +176,7 @@ FNode * getMinFNode_F(FNode * node) {
 /**
 Delete a FNode in this AVL-tree with parameter key( user's name). WOUNDN'T FREE INFO SPACE
 @parameter	key: the key as a user's name to find the correct FNode
-			node: sub-tree's root node
+node: sub-tree's root node
 @return: a new root node for outside updating
 */
 FNode * deleteAVL_F(char * key, FNode * node) {
@@ -252,7 +252,7 @@ UNode * getUNodeFromName_U(char * name, UNode * node) {
 			return node;
 		} else if (result < 0) {
 			return getUNodeFromName_U(name, node->left);
-		} else{//result > 0
+		} else {//result > 0
 			return getUNodeFromName_U(name, node->right);
 		}
 	}
@@ -359,39 +359,40 @@ UNode * insertAVL_U(Info * newInfo, UNode * node) {
 		newNode->info = newInfo;
 		newNode->height = 0;
 		node = newNode;
-	}
-
-	int result = strcmp(newInfo->name, node->info->name);
-
-	if (result == 0) {//there is a same name already
-		printf("¸ÃÓÃ»§ÒÑ²Ù×÷¹ý¡£");//for SNS to show up for users
-		return NULL;
 	} else {
-		if (result < 0) {
-			node->left = insertAVL_U(newInfo, node->left);
+		int result = strcmp(newInfo->name, node->info->name);
 
-			//check balance( the part below would be run for many times
-			if (getHeight_U(node->left) - getHeight_U(node->right) == 2) {
-				if (strcmp(newInfo->name, node->left->info->name) < 0) {
-					node = LL_Rotation_U(node);//make right rotation
-				} else {
-					node = LR_Rotation_U(node);//make left-riight rotation
+		if (result == 0) {//there is a same name already
+			return NULL;
+		} else {
+			if (result < 0) {
+				node->left = insertAVL_U(newInfo, node->left);
+
+				//check balance( the part below would be run for many times
+				if (getHeight_U(node->left) - getHeight_U(node->right) == 2) {
+					if (strcmp(newInfo->name, node->left->info->name) < 0) {
+						node = LL_Rotation_U(node);//make right rotation
+					} else {
+						node = LR_Rotation_U(node);//make left-riight rotation
+					}
 				}
-			}
 
-		} else {//result > 0
-			node->right = insertAVL_U(newInfo, node->right);
+			} else {//result > 0
+				node->right = insertAVL_U(newInfo, node->right);
 
-			//check balance( the part below would be run for many times
-			if (getHeight_U(node->right) - getHeight_U(node->left) == 2) {
-				if (strcmp(newInfo->name, node->right->info->name) > 0) {
-					node = RR_Rotation_U(node);//make right rotation
-				} else {
-					node = RL_Rotation_U(node);//make left-riight rotation
+				//check balance( the part below would be run for many times
+				if (getHeight_U(node->right) - getHeight_U(node->left) == 2) {
+					if (strcmp(newInfo->name, node->right->info->name) > 0) {
+						node = RR_Rotation_U(node);//make right rotation
+					} else {
+						node = RL_Rotation_U(node);//make left-riight rotation
+					}
 				}
 			}
 		}
 	}
+
+	
 
 	//updata height
 	updateHeight_U(node);

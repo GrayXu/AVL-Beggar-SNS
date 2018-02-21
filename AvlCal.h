@@ -58,19 +58,9 @@ void traInsertAVL(FNode * node) {
 }
 
 /**
-set_intersection
-And the return-FNode should be destroyed outside.
-*/
-void getIntersec_check_insert(FNode * node, FNode * sampleRoot);
-FNode * getSetIntersec(FNode * aFNode, FNode * bFNode) {
-	reNode = NULL;
-	getIntersec_check_insert(aFNode, bFNode);
-	return reNode;
-}
-
-/**
 Traverse a FNode-AVL-Tree, check whether it exist in another F-A-L or not. yes->insert into returning tree
-Call this func outside with a root node
+Call this func outside with a root node.
+FOR "getSetIntersec"
 */
 void getIntersec_check_insert(FNode * node, FNode * sampleRoot) {
 	if (node == NULL) {
@@ -83,6 +73,16 @@ void getIntersec_check_insert(FNode * node, FNode * sampleRoot) {
 		getIntersec_check_insert(node->left, sampleRoot);
 		getIntersec_check_insert(node->right, sampleRoot);
 	}
+}
+
+/**
+set_intersection
+And the return-FNode should be destroyed outside.
+*/
+FNode * getSetIntersec(FNode * aFNode, FNode * bFNode) {
+	reNode = NULL;
+	getIntersec_check_insert(aFNode, bFNode);
+	return reNode;
 }
 
 /**
@@ -100,12 +100,11 @@ int setEqual(FNode * aFNode, FNode * bFNode) {
 	return flag;
 }
 
-
+void getSetDiff_recursion(FNode * minusNode, FNode * sampleRoot);
 /*
 Set_diffrence -> a-b,
 Traverse each node of a=tree, find out if it's exist in b-tree or not.
 */
-void getSetDiff_recursion(FNode * minusNode, FNode * sampleRoot);
 FNode * getSetDifference(FNode * aFNode, FNode * bFNode) {
 	reNode = NULL;
 	getSetDiff_recursion(aFNode, bFNode);
