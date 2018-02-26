@@ -392,7 +392,7 @@ UNode * insertAVL_U(Info * newInfo, UNode * node) {
 		}
 	}
 
-	
+
 
 	//updata height
 	updateHeight_U(node);
@@ -480,3 +480,29 @@ void traverseAVL_U(UNode * node) {
 	traverseAVL_U(node->left);
 	traverseAVL_U(node->right);
 }
+
+//get depth
+int depthMax = 0;
+void getDepth_U_re(UNode * node, int i){
+    if (!node) return;
+	if (i > depthMax) depthMax = i;
+	getDepth_U_re(node->left, i+1);
+	getDepth_U_re(node->right, i+1);
+}
+int getDepth_U(UNode * uRoot){
+    depthMax = 0;
+    getDepth_U_re(uRoot,1);
+    return depthMax;
+}
+void getDepth_F_re(FNode * node, int i){
+    if (!node) return;
+	if (i > depthMax) depthMax = i;
+	getDepth_F_re(node->left, i+1);
+	getDepth_F_re(node->right, i+1);
+}
+int getDepth_F(FNode * fRoot){
+    depthMax = 0;
+    getDepth_F_re(fRoot,1);
+    return depthMax;
+}
+

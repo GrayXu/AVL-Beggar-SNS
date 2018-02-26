@@ -85,18 +85,21 @@ FNode * getSetIntersec(FNode * aFNode, FNode * bFNode) {
 	return reNode;
 }
 
+
+FNode * getSetDifference(FNode * aFNode, FNode * bFNode);
 /**
 set_equal.
 1->equal, 0->not equal
 */
 int setEqual(FNode * aFNode, FNode * bFNode) {
-	FNode * resultNode = getSetIntersec(aFNode, bFNode);
 	int flag = 0;
-	if (resultNode) {
+    FNode * resultA = getSetDifference(aFNode,bFNode);
+    FNode * resultB = getSetDifference(bFNode,aFNode);
+	if (resultA == NULL && resultB == NULL) {
 		flag = 1;
 	}
-	destroyAVL_F(resultNode);//free this temporary tree
-
+	destroyAVL_F(resultA);//free this temporary tree
+    destroyAVL_F(resultB);
 	return flag;
 }
 

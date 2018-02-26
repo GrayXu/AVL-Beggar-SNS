@@ -1,4 +1,8 @@
 ﻿#include <AvlCal.h>
+#include <math.h>
+#define NULLCODE 90017
+#define INIT_USER_LENGTH 100000
+#define INIT_RELATION_LENGTH 1000
 
 UNode * uRoot;
 
@@ -43,9 +47,9 @@ int printMenu() {
 
 	printf("\t11.查找任意两用户的共同关注\t\t12.查找任意两用户的共同好友\n");
 	printf("\t13.查找任意两用户的共同粉丝\t\t14.查找任意两用户的所有好友\n");
-	printf("\t15.查找任意两用户的独有好友\t\t16.\n\n");
+	printf("\t15.查找任意两用户的独有好友\n\n");
 
-	printf("\t17.保存系统\t\t\t\t18.读取系统\n\n");
+	printf("\t16.保存系统\t\t\t\t17.读取系统\n\n");
 
 	printf("\t0.退出系统\n\n");
 
@@ -470,6 +474,196 @@ void showOwnFriends() {
 	free(userNameA);
 }
 
+/*---------------save system---------- */
+Info ** infoList = NULL;
+Info * nullNode = NULL;
+void saveRelation_re(UNode * node, FILE * file);
+/*
+save follow and unfollow relationship
+*/
+void saveRelation(FILE * file){
+    saveRelation_re(uRoot, file);
+}
+void saveAVL_F(FNode * fRoot, FILE * file);
+//recurve
+void saveRelation_re(UNode * node, FILE * file){
+
+    fwrite(node->info,sizeof(Info),1,file);//mark
+
+    saveAVL_F(node->following,file);
+    saveAVL_F(node->followed,file);
+}
+void node2list_F(FNode * fNode, int i);
+//save a fnode AVL-tree to disk
+void saveAVL_F(FNode * fRoot, FILE * file){
+    int depth = getDepth_F(fRoot);
+    int LISTSIZE = pow(2, depth) - 1;
+    infoList = (Info **)malloc(sizeof(Info*)*LISTSIZE);
+    int i = 0;
+    for (i = 0; i < LISTSIZE; i++) {
+        infoList[i] = nullNode;
+    }//initalize save list
+
+    node2list_F(fRoot, 1);
+
+    for (i = 0; i < LISTSIZE; i++) {
+        fwrite(infoList[i], sizeof(Info), 1, file);//save with sequence
+        fwrite(infoList[i]->name, sizeof(char), 30, file);
+        fwrite(infoList[i]->hobby, sizeof(char), 10, file);
+    }//save users' information to disk
+
+    free(infoList);
+    infoList = NULL;
+}
+
+void node2list_U(UNode * uNode, int i);
+void saveSystem(){
+    printf("请输入存档名（有重名将覆盖原存档）:");
+    char * fileName = (char *)malloc(sizeof(char)*30);
+    fgetsNoN(fileName,30,stdin);
+    FILE * file = fopen(fileName, "wb");
+    if(!file){
+        printInfo(1);
+    }else{
+        nullNode  = (Info *)malloc(sizeof(Info));
+        nullNode->age = NULLCODE;
+
+        int depth = getDepth_U(uRoot);
+        int LISTSIZE = pow(2, depth) - 1;
+        infoList = (Info **)malloc(sizeof(Info*)*LISTSIZE);
+        int i = 0;
+        for (i = 0; i < LISTSIZE; i++) {
+            infoList[i] = nullNode;
+        }//initalize save list
+
+        node2list_U(uRoot, 1);//call this function to load nodes to save list, including null nodes
+
+        for (i = 0; i < LISTSIZE; i++) {
+            fwrite(infoList[i], sizeof(Info), 1, file);//save with sequence
+            fwrite(infoList[i]->name,sizeof(char),30,file);
+            fwrite(infoList[i]->hobby, sizeof(char), 10, file);
+        }//save users' information to disk
+
+        free(infoList);
+        infoList = NULL;
+
+        saveRelation(file);//save whole relationship of all users
+
+        //after whole save
+        fclose(file);
+        free(nullNode);
+
+    }
+    free(fileName);
+
+}
+
+//make nodes in tree inserting into "saveList"
+void node2list_U(UNode * uNode, int i){
+    if(!uNode) return;
+    infoList[i-1] = uNode->info;
+
+    node2list_U(uNode->left, 2*i);
+    node2list_U(uNode->right, 2*i+1);
+}
+void node2list_F(FNode * fNode, int i){
+    if(!fNode) return;
+    infoList[i-1] = fNode->info;
+
+    node2list_F(fNode->left, 2*i);
+    node2list_F(fNode->right, 2*i+1);
+}
+
+/*-------------Load System-------------*/
+char * readName(){
+
+}
+
+int maxIndex_loadTree = 0;
+void destroyInfoList(){
+    int i = 0;
+    int length = sizeof(infoList)/sizeof(Info *);
+    for(i = 0;i<length;i++){
+        free(infoList[i]);
+    }
+    free(infoList);
+}
+
+void cleanRelation(UNode * node){
+    if(!node) return;
+    destroyAVL_F(node->followed);
+    destroyAVL_F(node->following);
+}
+
+void loadRelation(){
+
+}
+
+UNode * list2tree_U(int i);
+void loadSystem(){
+    //clean cache
+    cleanRelation(uRoot);
+    destroyAVL_U(uRoot);
+
+    printf("请输入已保存的存档名:");
+    char * fileName = (char *)malloc(sizeof(char)*30);
+    fgetsNoN(fileName, 30, stdin);
+    FILE * file = fopen(fileName, "rb");
+    if(!file){
+        printf("无以此为名的存档\n");
+        return;
+    }
+
+    //start loading
+    infoList = (Info **)malloc(sizeof(Info *)*INIT_USER_LENGTH);
+
+//    FNode * newFNode = (FNode *)malloc(sizeof(FNode));
+//    Info * newInfo = (Info *)malloc(sizeof(Info));
+
+    int i = 0;
+    Info * newUInfo = (Info *)malloc(sizeof(Info));
+    while(fread(newUInfo, sizeof(Info), 1, file)){
+        infoList[i] = newUInfo;
+        i++;
+        newUInfo = (Info *)malloc(sizeof(Info));
+    }
+    free(newUInfo);//one more left
+
+    //now we got a list filled with user's infos
+    //int i is length of this list
+    maxIndex_loadTree = i;
+    UNode * root = list2tree_U(1);
+    uRoot = root;
+    destroyInfoList();
+
+    //TODO: generate height of all AVL tree
+}
+
+//return a root UNode
+UNode * list2tree_U(int i){
+    Info * info = infoList[i-1];
+    if(info->age == NULLCODE){
+        return NULL;
+    }
+    UNode * newUNode = (UNode *)malloc(sizeof(UNode));
+    newUNode->followed = NULL;
+    newUNode->following = NULL;
+    newUNode->info = info;
+
+    if(i*2 > maxIndex_loadTree){//at the buttom of this sub-tree
+        newUNode->left = NULL;
+    }else{
+        newUNode->left = list2tree_U(i*2);
+    }
+    if(i*2+1>maxIndex_loadTree){//at the buttom of this sub-tree
+        newUNode->right = NULL;
+    }else{
+        newUNode->right = list2tree_U(i*2+1);
+    }
+    return newUNode;
+}
+
+
 int main() {
 	uRoot = NULL;//init
 	int op = 1;
@@ -525,14 +719,10 @@ int main() {
 			showOwnFriends();
 			break;
 		case 16:
+		    saveSystem();
 			break;
 		case 17:
-			break;
-		case 18:
-			break;
-		case 19:
-			break;
-		case 20:
+		    loadSystem();
 			break;
 		case 0:
 			break;
