@@ -461,10 +461,12 @@ UNode * deleteAVL_U(char * key, UNode * node) {
 			if (node->left) node = node->left;
 			else node = node->right;
 
+			Info * delInfo = delNode->info;
 			//when you want to delete a UNode, which means this guy would be deleted including all infomation
-			if (delNode->info) {
-				free(delNode->info->name);
-				free(delNode->info);
+			if (delInfo) {
+				free(delInfo->name);
+				free(delInfo->hobby);
+				free(delInfo);
 			}
 			free(delNode);
 		}
@@ -483,26 +485,26 @@ void traverseAVL_U(UNode * node) {
 
 //get depth
 int depthMax = 0;
-void getDepth_U_re(UNode * node, int i){
-    if (!node) return;
+void getDepth_U_re(UNode * node, int i) {
+	if (!node) return;
 	if (i > depthMax) depthMax = i;
-	getDepth_U_re(node->left, i+1);
-	getDepth_U_re(node->right, i+1);
+	getDepth_U_re(node->left, i + 1);
+	getDepth_U_re(node->right, i + 1);
 }
-int getDepth_U(UNode * uRoot){
-    depthMax = 0;
-    getDepth_U_re(uRoot,1);
-    return depthMax;
+int getDepth_U(UNode * uRoot) {
+	depthMax = 0;
+	getDepth_U_re(uRoot, 1);
+	return depthMax;
 }
-void getDepth_F_re(FNode * node, int i){
-    if (!node) return;
+void getDepth_F_re(FNode * node, int i) {
+	if (!node) return;
 	if (i > depthMax) depthMax = i;
-	getDepth_F_re(node->left, i+1);
-	getDepth_F_re(node->right, i+1);
+	getDepth_F_re(node->left, i + 1);
+	getDepth_F_re(node->right, i + 1);
 }
-int getDepth_F(FNode * fRoot){
-    depthMax = 0;
-    getDepth_F_re(fRoot,1);
-    return depthMax;
+int getDepth_F(FNode * fRoot) {
+	depthMax = 0;
+	getDepth_F_re(fRoot, 1);
+	return depthMax;
 }
 

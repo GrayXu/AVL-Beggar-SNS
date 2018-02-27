@@ -93,13 +93,13 @@ set_equal.
 */
 int setEqual(FNode * aFNode, FNode * bFNode) {
 	int flag = 0;
-    FNode * resultA = getSetDifference(aFNode,bFNode);
-    FNode * resultB = getSetDifference(bFNode,aFNode);
+	FNode * resultA = getSetDifference(aFNode, bFNode);
+	FNode * resultB = getSetDifference(bFNode, aFNode);
 	if (resultA == NULL && resultB == NULL) {
 		flag = 1;
 	}
 	destroyAVL_F(resultA);//free this temporary tree
-    destroyAVL_F(resultB);
+	destroyAVL_F(resultB);
 	return flag;
 }
 
