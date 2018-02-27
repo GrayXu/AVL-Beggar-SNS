@@ -357,8 +357,11 @@ UNode * insertAVL_U(Info * newInfo, UNode * node) {
 		newNode->left = NULL;
 		newNode->right = NULL;
 		newNode->info = newInfo;
+		newNode->followed = NULL;
+		newNode->following = NULL;
 		newNode->height = 0;
 		node = newNode;
+
 	} else {
 		int result = strcmp(newInfo->name, node->info->name);
 

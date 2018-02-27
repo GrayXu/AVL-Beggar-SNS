@@ -68,7 +68,7 @@ void getIntersec_check_insert(FNode * node, FNode * sampleRoot) {
 	} else {
 		FNode * resultNode = getFNodeFromName_F(node->info->name, sampleRoot);
 		if (resultNode) {//exist
-			insertAVL_F(resultNode->info, reNode);
+			reNode = insertAVL_F(resultNode->info, reNode);
 		}
 		getIntersec_check_insert(node->left, sampleRoot);
 		getIntersec_check_insert(node->right, sampleRoot);
@@ -123,7 +123,7 @@ void getSetDiff_recursion(FNode * minusNode, FNode * sampleRoot) {
 	} else {
 		FNode * resultNode = getFNodeFromName_F(minusNode->info->name, sampleRoot);
 		if (resultNode == NULL) {//not exist
-			insertAVL_F(resultNode->info, reNode);
+			reNode = insertAVL_F(resultNode->info, reNode);
 		}
 		getSetDiff_recursion(minusNode->left, sampleRoot);
 		getSetDiff_recursion(minusNode->right, sampleRoot);
@@ -171,5 +171,27 @@ FNode * insertA2B(FNode * aFNode, FNode * sampleRoot) {
 		sampleRoot = insertA2B(aFNode->left, sampleRoot);
 		sampleRoot = insertA2B(aFNode->right, sampleRoot);
 		return sampleRoot;
+	}
+}
+
+/*
+get a avl tree filled with users having same hobby with sampleNode
+*/
+void getSameHobbyUsers_re(UNode * node, char * sampleHobby){
+    if(!node) return;
+
+    if(strcmp(node->info->hobby, sampleHobby) == 0){
+        reNode = insertAVL_F(node->info, reNode);
+    }
+    getSameHobbyUsers_re(node->left, sampleHobby);
+    getSameHobbyUsers_re(node->right, sampleHobby);
+}
+FNode * getSameHobbyUsers(UNode * sampleNode, UNode * root){
+    if (sampleNode == NULL) {
+		return NULL;
+	} else {
+		reNode = NULL;
+        getSameHobbyUsers_re(root, sampleNode->info->hobby);
+        return reNode;
 	}
 }

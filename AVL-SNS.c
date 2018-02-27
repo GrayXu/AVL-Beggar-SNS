@@ -1,8 +1,10 @@
-﻿#include <AvlCal.h>
-#include <math.h>
+﻿#include <IO.h>
+#include <windows.h>
+#include <wincon.h>
+#include <windef.h>
+#include "shlobj.h"
+#include <wingdi.h>
 #define NULLCODE 90017
-#define INIT_USER_LENGTH 100000
-#define INIT_RELATION_LENGTH 1000
 
 UNode * uRoot;
 
@@ -33,6 +35,12 @@ void printInfo(int mode) {
 	}
 }
 
+void initConsole(){
+    system("mode con:cols=100 lines=30");
+    system("color 3B");
+    SetConsoleTitle("基于AVL的SNS社交网络模型系统");
+}
+
 int printMenu() {
 	int op = 90071;
 
@@ -43,13 +51,14 @@ int printMenu() {
 	printf("\t5.向用户添加新的关注关系\t\t6.删除用户的关注关系\n\n");
 
 	printf("\t7.查找用户的所有关注\t\t\t8.查找用户的所有粉丝\n");
-	printf("\t9.查找用户的所有好友\t\t\t10.查找用户的所有二度好友\n\n");
+	printf("\t9.查找用户的所有好友\t\t\t10.查找用户的所有二度好友\n");
+	printf("\t11.查找用户共同喜好的其他用户\n\n");
 
-	printf("\t11.查找任意两用户的共同关注\t\t12.查找任意两用户的共同好友\n");
-	printf("\t13.查找任意两用户的共同粉丝\t\t14.查找任意两用户的所有好友\n");
-	printf("\t15.查找任意两用户的独有好友\n\n");
+	printf("\t12.查找任意两用户的共同关注\t\t13.查找任意两用户的共同好友\n");
+	printf("\t14.查找任意两用户的共同粉丝\t\t15.查找任意两用户的所有好友\n");
+	printf("\t16.查找任意两用户的独有好友\n\n");
 
-	printf("\t16.保存系统\t\t\t\t17.读取系统\n\n");
+	printf("\t17.保存系统\t\t\t\t18.读取系统\n\n");
 
 	printf("\t0.退出系统\n\n");
 
@@ -63,8 +72,8 @@ int printMenu() {
 void addUser() {
 
 	printf("请输入该用户的用户名（不可与已有用户相同）:");
-	char * newUserName = (char *)malloc(sizeof(char) * 50);
-	fgetsNoN(newUserName, 50, stdin);
+	char * newUserName = (char *)malloc(sizeof(char) * 30);
+	fgetsNoN(newUserName, 30, stdin);
 
 	UNode * check = getUNodeFromName_U(newUserName, uRoot);
 	if (check) {
@@ -88,6 +97,7 @@ void addUser() {
 		newInfo->name = newUserName;
 		newInfo->hobby = newhobby;
 		uRoot = insertAVL_U(newInfo, uRoot);
+
 		if (uRoot) printInfo(2);
 		else printf("failed!\n");
 	}
@@ -123,7 +133,7 @@ void changeUser() {
 		printInfo(3);
 	} else {
 		int select = 0;
-		while (select != 1 || select != 2 || select != 3) {
+		while (select != 1 && select != 2 && select != 3) {
 			printf("请输入数字来选择你想要修改的属性\n\t 1->年龄  2->性别 3->喜好:");
 			scanf("%d%*c", &select);
 		}
@@ -139,6 +149,7 @@ void changeUser() {
 			printf("请输入该用户新的喜好：");
 			fgetsNoN(getUNode->info->hobby, 10, stdin);
 		}
+		printf("修改成功\n");
 	}
 	free(userName);
 }
@@ -154,7 +165,7 @@ void showUser() {
 		printInfo(3);
 	} else {
 		Info * info = getUNode->info;
-		printf("用户名:%s ; 年龄:%d ; 爱好:%s ; 性别:", info->name, info->hobby,info->age);
+		printf("用户名:%s ; 年龄:%d ; 爱好:%s ; 性别:", info->name, info->age, info->hobby);
 		if (info->sex == 1) {
 			printf("男\n");
 		} else {//sex == 2
@@ -232,15 +243,19 @@ void traversePrint(FNode * node) {
 //print all user's following
 void showFollowing() {
 	printf("请输入该用户的用户名:");
-	char * userName = (char *)malloc(sizeof(char) * 50);
-	fgetsNoN(userName, 50, stdin);
+	char * userName = (char *)malloc(sizeof(char) * 30);
+	fgetsNoN(userName, 30, stdin);
 
 	UNode * getUNode = getUNodeFromName_U(userName, uRoot);
 	if (!getUNode) {
 		printInfo(3);
 	} else {
-		printf("--------以下为该用户的所有关注--------\n");
-		traversePrint(getUNode->following); printf("\n");
+	    if(getUNode->following){
+            printf("--------以下为该用户的所有关注--------\n");
+            traversePrint(getUNode->following); printf("\n");
+	    }else{
+            printInfo(4);
+	    }
 	}
 	free(userName);
 }
@@ -248,15 +263,21 @@ void showFollowing() {
 //print all user's followed
 void showFollowed() {
 	printf("请输入该用户的用户名:");
-	char * userName = (char *)malloc(sizeof(char) * 50);
-	fgetsNoN(userName, 50, stdin);
+	char * userName = (char *)malloc(sizeof(char) * 30);
+	fgetsNoN(userName, 30, stdin);
 
 	UNode * getUNode = getUNodeFromName_U(userName, uRoot);
 	if (!getUNode) {
 		printInfo(3);
 	} else {
-		printf("--------以下为该用户的所有粉丝--------\n");
-		traversePrint(getUNode->followed); printf("\n");
+
+		if(getUNode->followed){
+            printf("--------以下为该用户的所有粉丝--------\n");
+            traversePrint(getUNode->followed); printf("\n");
+		}else{
+            printInfo(4);
+		}
+
 	}
 	free(userName);
 }
@@ -264,15 +285,15 @@ void showFollowed() {
 //print all user's fans ( fans are both following and followed)
 void showFriends() {
 	printf("请输入该用户的用户名:");
-	char * userName = (char *)malloc(sizeof(char) * 50);
-	fgetsNoN(userName, 50, stdin);
+	char * userName = (char *)malloc(sizeof(char) * 30);
+	fgetsNoN(userName, 30, stdin);
 
 	UNode * getUNode = getUNodeFromName_U(userName, uRoot);
 	if (!getUNode) {
 		printInfo(3);
 	} else {
 		FNode * friendsRoot = getSetIntersec(getUNode->following, getUNode->followed);//BOTH
-		if (friendsRoot) {
+		if (!friendsRoot) {
 			printf("--------以下为该用户的所有好友--------\n");
 			traversePrint(friendsRoot); printf("\n");
 			destroyAVL_F(friendsRoot);
@@ -287,8 +308,8 @@ void showFriends() {
 //print second friends
 void showSecondFriend() {
 	printf("请输入该用户的用户名:");
-	char * userName = (char *)malloc(sizeof(char) * 50);
-	fgetsNoN(userName, 50, stdin);
+	char * userName = (char *)malloc(sizeof(char) * 30);
+	fgetsNoN(userName, 30, stdin);
 
 	UNode * getUNode = getUNodeFromName_U(userName, uRoot);
 	if (!getUNode) {
@@ -309,16 +330,16 @@ void showSecondFriend() {
 //show common following of two specified users
 void showCommonFollowing() {
 	printf("请输入第一个用户的用户名:");
-	char * userNameA = (char *)malloc(sizeof(char) * 50);
-	fgetsNoN(userNameA, 50, stdin);
+	char * userNameA = (char *)malloc(sizeof(char) * 30);
+	fgetsNoN(userNameA, 30, stdin);
 
 	UNode * uNodeA = getUNodeFromName_U(userNameA, uRoot);
 	if (!uNodeA) {
 		printInfo(3);
 	} else {
 		printf("请输入第二个用户的用户名:");
-		char * userNameB = (char *)malloc(sizeof(char) * 50);
-		fgetsNoN(userNameB, 50, stdin);
+		char * userNameB = (char *)malloc(sizeof(char) * 30);
+		fgetsNoN(userNameB, 30, stdin);
 		UNode * uNodeB = getUNodeFromName_U(userNameB, uRoot);
 		if (!uNodeB) {
 			FNode * comFollowing = getSetIntersec(uNodeB->following, uNodeA->following);
@@ -341,16 +362,16 @@ void showCommonFollowing() {
 //show common followed of two specified users
 void showCommonFollowed() {
 	printf("请输入第一个用户的用户名:");
-	char * userNameA = (char *)malloc(sizeof(char) * 50);
-	fgetsNoN(userNameA, 50, stdin);
+	char * userNameA = (char *)malloc(sizeof(char) * 30);
+	fgetsNoN(userNameA, 30, stdin);
 
 	UNode * uNodeA = getUNodeFromName_U(userNameA, uRoot);
 	if (!uNodeA) {
 		printInfo(3);
 	} else {
 		printf("请输入第二个用户的用户名:");
-		char * userNameB = (char *)malloc(sizeof(char) * 50);
-		fgetsNoN(userNameB, 50, stdin);
+		char * userNameB = (char *)malloc(sizeof(char) * 30);
+		fgetsNoN(userNameB, 30, stdin);
 		UNode * uNodeB = getUNodeFromName_U(userNameB, uRoot);
 		if (!uNodeB) {
 			FNode * comFollowed = getSetIntersec(uNodeB->followed, uNodeA->followed);
@@ -373,16 +394,16 @@ void showCommonFollowed() {
 //show common friends of two specified users
 void showCommonFriends() {
 	printf("请输入第一个用户的用户名:");
-	char * userNameA = (char *)malloc(sizeof(char) * 50);
-	fgetsNoN(userNameA, 50, stdin);
+	char * userNameA = (char *)malloc(sizeof(char) * 30);
+	fgetsNoN(userNameA, 30, stdin);
 
 	UNode * uNodeA = getUNodeFromName_U(userNameA, uRoot);
 	if (!uNodeA) {
 		printInfo(3);
 	} else {
 		printf("请输入第二个用户的用户名:");
-		char * userNameB = (char *)malloc(sizeof(char) * 50);
-		fgetsNoN(userNameB, 50, stdin);
+		char * userNameB = (char *)malloc(sizeof(char) * 30);
+		fgetsNoN(userNameB, 30, stdin);
 		UNode * uNodeB = getUNodeFromName_U(userNameB, uRoot);
 		if (!uNodeB) {
 			FNode * friRootA = getSetIntersec(uNodeA->followed, uNodeA->following);
@@ -407,16 +428,16 @@ void showCommonFriends() {
 //show friends-union of two specified users
 void showUnionFriends() {
 	printf("请输入第一个用户的用户名:");
-	char * userNameA = (char *)malloc(sizeof(char) * 50);
-	fgetsNoN(userNameA, 50, stdin);
+	char * userNameA = (char *)malloc(sizeof(char) * 30);
+	fgetsNoN(userNameA, 30, stdin);
 
 	UNode * uNodeA = getUNodeFromName_U(userNameA, uRoot);
 	if (!uNodeA) {
 		printInfo(3);
 	} else {
 		printf("请输入第二个用户的用户名:");
-		char * userNameB = (char *)malloc(sizeof(char) * 50);
-		fgetsNoN(userNameB, 50, stdin);
+		char * userNameB = (char *)malloc(sizeof(char) * 30);
+		fgetsNoN(userNameB, 30, stdin);
 		UNode * uNodeB = getUNodeFromName_U(userNameB, uRoot);
 		if (!uNodeB) {
 			FNode * friRootA = getSetIntersec(uNodeA->followed, uNodeA->following);
@@ -441,16 +462,16 @@ void showUnionFriends() {
 //show one's Own Friends
 void showOwnFriends() {
 	printf("请输入第一个用户的用户名:");
-	char * userNameA = (char *)malloc(sizeof(char) * 50);
-	fgetsNoN(userNameA, 50, stdin);
+	char * userNameA = (char *)malloc(sizeof(char) * 30);
+	fgetsNoN(userNameA, 30, stdin);
 
 	UNode * uNodeA = getUNodeFromName_U(userNameA, uRoot);
 	if (!uNodeA) {
 		printInfo(3);
 	} else {
 		printf("请输入第二个用户的用户名:");
-		char * userNameB = (char *)malloc(sizeof(char) * 50);
-		fgetsNoN(userNameB, 50, stdin);
+		char * userNameB = (char *)malloc(sizeof(char) * 30);
+		fgetsNoN(userNameB, 30, stdin);
 		UNode * uNodeB = getUNodeFromName_U(userNameB, uRoot);
 		if (!uNodeB) {
 			FNode * friRootA = getSetIntersec(uNodeA->followed, uNodeA->following);
@@ -484,198 +505,126 @@ void showOwnFriends() {
 }
 
 /*---------------save system---------- */
-Info ** infoList = NULL;
-Info * nullNode = NULL;
-//recurve
-void saveRelation_re(UNode * node, FILE * file) {
+//without sequence
+void saveUser(UNode * node, FILE * file){
+    if(!node) return;
+    Info * info = node->info;
+    fprintf(file, "%s;%s;%d;%d\n", info->name, info->hobby, info->age, info->sex);
 
-	fwrite(node->info, sizeof(Info), 1, file);//this is a mark
-
-	saveAVL_F(node->following, file);
-	saveAVL_F(node->followed, file);
-}
-/*
-save follow and unfollow relationship
-*/
-void saveRelation(FILE * file) {
-	saveRelation_re(uRoot, file);
+    saveUser(node->left, file);
+    saveUser(node->right, file);
 }
 
-void node2list_F(FNode * fNode, int i);
-//save a fnode AVL-tree to disk
-void saveAVL_F(FNode * fRoot, FILE * file) {
-	int depth = getDepth_F(fRoot);
-	int LISTSIZE = pow(2, depth) - 1;
-	infoList = (Info **)malloc(sizeof(Info*)*LISTSIZE);
-	int i = 0;
-	for (i = 0; i < LISTSIZE; i++) {
-		infoList[i] = nullNode;
-	}//initalize save list
+//for all users' relationships( here is following tree)
+void saveRelation_2(FNode * node, FILE * file, char * following){
+    if (!node) return;
 
-	node2list_F(fRoot, 1);
+    fprintf(file, "%s;%s\n",following, node->info->name);//latter one is the followed
 
-	for (i = 0; i < LISTSIZE; i++) {
-		fwrite(infoList[i], sizeof(Info), 1, file);//save with sequence
-		fwrite(infoList[i]->name, sizeof(char), 30, file);
-		fwrite(infoList[i]->hobby, sizeof(char), 10, file);
-	}//save users' information to disk
+    saveRelation_2(node->left, file, following);
+    saveRelation_2(node->right, file, following);
+}
+//this is for all relationships of one user
+void saveRelation_1(UNode * node, FILE * file){
+    if(!node) return;
 
-	free(infoList);
-	infoList = NULL;
+    saveRelation_2(node->following, file, node->info->name);
+
+    saveRelation_1(node->left, file);
+    saveRelation_1(node->right, file);
 }
 
-void node2list_U(UNode * uNode, int i);
 void saveSystem() {
-	printf("请输入存档名（有重名将覆盖原存档）:");
+    printf("请输入存档名（有重名将覆盖原存档）:");
 	char * fileName = (char *)malloc(sizeof(char) * 30);
+	char * path = (char *)malloc(sizeof(char) * 35);
 	fgetsNoN(fileName, 30, stdin);
-	FILE * file = fopen(fileName, "wb");
-	if (!file) {
+
+    strcpy(path, fileName);
+    strcat(path, ".u");
+	FILE * fileU = fopen(path, "w+");
+	if (!fileU) {
 		printInfo(1);
 	} else {
-		nullNode = (Info *)malloc(sizeof(Info));
-		nullNode->age = NULLCODE;
+        strcpy(path, fileName);
+        strcat(path, ".r");
+        FILE * fileR = fopen(path , "w+");//to save relationship
+        saveUser(uRoot, fileU);
+        saveRelation_1(uRoot, fileR);
 
-		int depth = getDepth_U(uRoot);
-		int LISTSIZE = pow(2, depth) - 1;
-		infoList = (Info **)malloc(sizeof(Info*)*LISTSIZE);
-		int i = 0;
-		for (i = 0; i < LISTSIZE; i++) {
-			infoList[i] = nullNode;
-		}//initalize save list
-
-		node2list_U(uRoot, 1);//call this function to load nodes to save list, including null nodes
-
-		for (i = 0; i < LISTSIZE; i++) {
-			fwrite(infoList[i], sizeof(Info), 1, file);//save with sequence
-			fwrite(infoList[i]->name, sizeof(char), 30, file);
-			fwrite(infoList[i]->hobby, sizeof(char), 10, file);
-		}//save users' information to disk
-
-		free(infoList);
-		infoList = NULL;
-
-		saveRelation(file);//save whole relationship of all users
-
-						   //after whole save
-		fclose(file);
-		free(nullNode);
-
+        //close file
+        fclose(fileU);
+        fclose(fileR);
+        printInfo(2);
 	}
-	free(fileName);
-
-}
-
-//make nodes in tree inserting into "saveList"
-void node2list_U(UNode * uNode, int i) {
-	if (!uNode) return;
-	infoList[i - 1] = uNode->info;
-
-	node2list_U(uNode->left, 2 * i);
-	node2list_U(uNode->right, 2 * i + 1);
-}
-void node2list_F(FNode * fNode, int i) {
-	if (!fNode) return;
-	infoList[i - 1] = fNode->info;
-
-	node2list_F(fNode->left, 2 * i);
-	node2list_F(fNode->right, 2 * i + 1);
 }
 
 /*-------------Load System-------------*/
-char * readName() {
-
-}
-
-int maxIndex_loadTree = 0;
-void destroyInfoList() {
-	int i = 0;
-	int length = sizeof(infoList) / sizeof(Info *);
-	for (i = 0; i<length; i++) {
-		free(infoList[i]);
-	}
-	free(infoList);
-}
-
 void cleanRelation(UNode * node) {
 	if (!node) return;
 	destroyAVL_F(node->followed);
 	destroyAVL_F(node->following);
 }
 
-void loadRelation() {
-
-}
-
-UNode * list2tree_U(int i);
+//load whole system from disk
 void loadSystem() {
-	//clean cache
-	cleanRelation(uRoot);
-	destroyAVL_U(uRoot);
 
-	printf("请输入已保存的存档名:");
+    printf("请输入存档名:");
 	char * fileName = (char *)malloc(sizeof(char) * 30);
+	char * path = (char *)malloc(sizeof(char)*35);
 	fgetsNoN(fileName, 30, stdin);
-	FILE * file = fopen(fileName, "rb");
-	if (!file) {
+	strcpy(path, fileName);
+	strcat(path, ".u");
+	FILE * fileU = fopen(path, "r+");
+	if (!fileU) {
 		printf("无以此为名的存档\n");
-		return;
+	} else {
+	    //clean cache
+        cleanRelation(uRoot);
+        destroyAVL_U(uRoot);
+        uRoot = NULL;
+
+        uRoot = getUsers(fileU);
+        strcpy(path, fileName);
+        strcat(path, ".r");
+        FILE * fileR = fopen(path, "r+");
+        getRelation(uRoot, fileR);
+
+        fclose(fileU);
+        fclose(fileR);
+
+        //TODO: update heights!!!!
+
+        printInfo(2);
 	}
-
-	//start loading
-	infoList = (Info **)malloc(sizeof(Info *)*INIT_USER_LENGTH);
-
-	//    FNode * newFNode = (FNode *)malloc(sizeof(FNode));
-	//    Info * newInfo = (Info *)malloc(sizeof(Info));
-
-	int i = 0;
-	Info * newUInfo = (Info *)malloc(sizeof(Info));
-	while (fread(newUInfo, sizeof(Info), 1, file)) {
-		infoList[i] = newUInfo;
-		i++;
-		newUInfo = (Info *)malloc(sizeof(Info));
-	}
-	free(newUInfo);//one more left
-
-				   //now we got a list filled with user's infos
-				   //int i is length of this list
-	maxIndex_loadTree = i;
-	UNode * root = list2tree_U(1);
-	uRoot = root;
-	destroyInfoList();
-
-	//TODO: generate height of all AVL tree
 }
 
-//return a root UNode
-UNode * list2tree_U(int i) {
-	Info * info = infoList[i - 1];
-	if (info->age == NULLCODE) {
-		return NULL;
-	}
-	UNode * newUNode = (UNode *)malloc(sizeof(UNode));
-	newUNode->followed = NULL;
-	newUNode->following = NULL;
-	newUNode->info = info;
+//show those users having same hobby
+void showSameHobby(){
+    printf("请输入该用户的用户名:");
+	char * userName = (char *)malloc(sizeof(char) * 30);
+	fgetsNoN(userName, 30, stdin);
 
-	if (i * 2 > maxIndex_loadTree) {//at the buttom of this sub-tree
-		newUNode->left = NULL;
+	UNode * getUNode = getUNodeFromName_U(userName, uRoot);
+	if (!getUNode) {
+		printInfo(3);
 	} else {
-		newUNode->left = list2tree_U(i * 2);
+        FNode * resultNode = getSameHobbyUsers(getUNode, uRoot);
+        if(resultNode){
+            printf("以下为所有相同喜好的用户名单:\n");
+            traversePrint(resultNode);printf("\n");
+            destroyAVL_F(resultNode);
+        }else{
+            printInfo(4);
+        }
 	}
-	if (i * 2 + 1>maxIndex_loadTree) {//at the buttom of this sub-tree
-		newUNode->right = NULL;
-	} else {
-		newUNode->right = list2tree_U(i * 2 + 1);
-	}
-	return newUNode;
+	free(userName);
 }
-
 
 int main() {
 	uRoot = NULL;//init
 	int op = 1;
-
+    initConsole();
 	while (op) {
 		system("cls");//clean content on screen
 		op = printMenu();
@@ -711,25 +660,28 @@ int main() {
 		case 10:
 			showSecondFriend();
 			break;
-		case 11:
+        case 11:
+            showSameHobby();
+            break;
+		case 12:
 			showCommonFollowing();
 			break;
-		case 12:
+		case 13:
 			showCommonFriends();
 			break;
-		case 13:
+		case 14:
 			showCommonFollowed();
 			break;
-		case 14:
+		case 15:
 			showUnionFriends();
 			break;
-		case 15:
+		case 16:
 			showOwnFriends();
 			break;
-		case 16:
+		case 17:
 			saveSystem();
 			break;
-		case 17:
+		case 18:
 			loadSystem();
 			break;
 		case 0:

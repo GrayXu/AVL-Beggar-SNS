@@ -1,0 +1,156 @@
+#include <AvlCal.h>
+#define NULLCODE 90017
+#define INIT_USER_LENGTH 100000
+#define INIT_RELATION_LENGTH 1000
+
+//将一维字符数组的内容切分至已经开好空间的二维字符数组中去。(仅适用于必须有内容的情况
+//将默认 ";" 为切分符号
+
+char** setDoubleCharArray(char** out, char* in) {
+	if (out == NULL || in[0]=='\0') {
+		return NULL;
+	}
+	register int allIndex = 0;
+	register int outIndex = 0;
+	register int inIndex = 0;
+	char read = 0;
+
+	while ((read = *(in + allIndex)), read != '\n') {
+		if (read == ';') {
+			out[outIndex][inIndex] = '\0';//end this string
+			outIndex++;//reset
+			inIndex = 0;
+		} else {
+			out[outIndex][inIndex] = read;
+			inIndex++;
+		}
+		allIndex++;
+	}
+	out[outIndex][inIndex] = '\0';//end the final string
+	return out;
+}
+
+//free stake memory( for the double char array)
+void freeDoubleCharArray(int num, char ** info) {
+	register int i;
+	for (i = 0; i < num; i++) {
+		free(info[i]);
+	}
+	free(info);
+
+}
+
+char ** readUser(char * in){
+    char** strArray = (char**)malloc(sizeof(char *) * 4);
+	strArray[0] = (char*)malloc(sizeof(char) * 30);
+	strArray[1] = (char*)malloc(sizeof(char) * 10);
+	strArray[2] = (char*)malloc(sizeof(char) * 10);
+	strArray[3] = (char*)malloc(sizeof(char) * 10);
+	if (setDoubleCharArray(strArray, in) != NULL){
+        return strArray;
+	} else {
+        return NULL;
+	}
+}
+
+char ** readRelation(char * in){
+    char ** strArray = (char**)malloc(sizeof(char *) * 2);
+    //former is "follow" split with ";"
+    strArray[0] = (char*)malloc(sizeof(char) * 30);
+	strArray[1] = (char*)malloc(sizeof(char) * 30);
+	if (setDoubleCharArray(strArray, in) != NULL){
+        return strArray;
+	} else {
+	    freeDoubleCharArray(2, strArray);
+        return NULL;
+	}
+}
+
+//get users' info from disk and make them become avl tree
+UNode * getUsers(FILE * file){
+    UNode * newRoot = NULL;
+
+    UNode * unode = (UNode*)malloc(sizeof(UNode));
+    unode->followed = NULL;unode->following = NULL;unode->left = NULL;unode->right = NULL;
+    Info * info = (Info *)malloc(sizeof(Info));
+    info->name = (char *)malloc(sizeof(char)*30);
+    info->hobby = (char *)malloc(sizeof(char)*10);
+    unode->info = info;
+
+    char StrLine[200];//one line one user
+    fgets(StrLine, 200, file);
+    char ** property = readUser(StrLine);
+    if(!property) {
+        free(info->name);
+        free(info->hobby);
+        free(info);
+        return NULL;
+    }
+    strcpy(info->name, property[0]);
+    strcpy(info->hobby, property[1]);
+    info->age = atoi(property[2]);
+    info->sex = atoi(property[3]);
+    freeDoubleCharArray(4, property);
+
+    newRoot = unode;
+
+    while(1){
+        info = (Info *)malloc(sizeof(Info));
+
+        info->name = (char *)malloc(sizeof(char)*30);
+        info->hobby = (char *)malloc(sizeof(char)*10);
+
+        char StrLine[200];//one line one user
+		fgets(StrLine, 200, file);
+
+		if(feof(file)){
+            free(info->name);
+            free(info->hobby);
+            free(info);
+            break;
+		}
+
+        char ** property = readUser(StrLine);
+        if(!property) return NULL;
+        strcpy(info->name, property[0]);
+        strcpy(info->hobby, property[1]);
+        info->age = atoi(property[2]);
+        info->sex = atoi(property[3]);
+        freeDoubleCharArray(4, property);
+
+        newRoot = insertAVL_U(info, newRoot);
+
+    }
+
+    return newRoot;
+}
+//addRelation
+void getRelation(UNode * root, FILE * file){
+    char StrLine[200];//one line one user
+    fgets(StrLine, 200, file);
+    char ** property = readUser(StrLine);
+    if(!property) return;
+    UNode * followingNode = getUNodeFromName_U(property[0], root);
+    UNode * followedNode = getUNodeFromName_U(property[1], root);
+    insertAVL_F(followedNode->info, followingNode->following);
+    insertAVL_F(followingNode->info, followedNode->followed);
+    freeDoubleCharArray(2, property);
+
+    while(1){
+        char StrLine[200];//one line one user
+        fgets(StrLine, 200, file);
+
+        if(feof(file)){
+            break;
+        }
+
+        char ** property = readUser(StrLine);
+        if(!property) return;
+        UNode * followingNode = getUNodeFromName_U(property[0], root);
+        UNode * followedNode = getUNodeFromName_U(property[1], root);
+        insertAVL_F(followedNode->info, followingNode->following);
+        insertAVL_F(followingNode->info, followedNode->followed);
+        freeDoubleCharArray(2, property);
+
+    }
+}
