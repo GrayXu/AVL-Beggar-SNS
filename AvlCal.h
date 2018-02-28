@@ -16,6 +16,7 @@ FNode * getSecFriend(UNode * uNode) {
 	reNode = NULL;
 	//traverse this user-tree to call U21-func
 	getSecFriend_U2T(uNode);
+	reNode = deleteAVL_F(uNode->info->name, reNode);//delete itself
 	//now we would get the root node we want
 	return reNode;
 }
@@ -177,21 +178,21 @@ FNode * insertA2B(FNode * aFNode, FNode * sampleRoot) {
 /*
 get a avl tree filled with users having same hobby with sampleNode
 */
-void getSameHobbyUsers_re(UNode * node, char * sampleHobby){
-    if(!node) return;
+void getSameHobbyUsers_re(UNode * node, char * sampleHobby) {
+	if (!node) return;
 
-    if(strcmp(node->info->hobby, sampleHobby) == 0){
-        reNode = insertAVL_F(node->info, reNode);
-    }
-    getSameHobbyUsers_re(node->left, sampleHobby);
-    getSameHobbyUsers_re(node->right, sampleHobby);
+	if (strcmp(node->info->hobby, sampleHobby) == 0) {
+		reNode = insertAVL_F(node->info, reNode);
+	}
+	getSameHobbyUsers_re(node->left, sampleHobby);
+	getSameHobbyUsers_re(node->right, sampleHobby);
 }
-FNode * getSameHobbyUsers(UNode * sampleNode, UNode * root){
-    if (sampleNode == NULL) {
+FNode * getSameHobbyUsers(UNode * sampleNode, UNode * root) {
+	if (sampleNode == NULL) {
 		return NULL;
 	} else {
 		reNode = NULL;
-        getSameHobbyUsers_re(root, sampleNode->info->hobby);
-        return reNode;
+		getSameHobbyUsers_re(root, sampleNode->info->hobby);
+		return reNode;
 	}
 }

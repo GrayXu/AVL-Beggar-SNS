@@ -18,8 +18,7 @@ THIS IS "SearchAVL"
 FNode * getFNodeFromName_F(char * name, FNode * node) {
 	if (node == NULL) return NULL;//which means that we can't find such a node with this name
 	else {
-		char * nodeName = node->info->name;
-		int result = strcmp(name, nodeName);
+		int result = strcmp(name, node->info->name);
 		if (result == 0) {
 			return node;
 		} else if (result < 0) {
