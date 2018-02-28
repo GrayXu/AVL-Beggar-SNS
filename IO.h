@@ -3,7 +3,7 @@
 #define INIT_USER_LENGTH 100000
 #define INIT_RELATION_LENGTH 1000
 
-// ";" would be the split mark
+// "," would be the split mark
 char** setDoubleCharArray(char** out, char* in) {
 	if (out == NULL || in[0] == '\0') {
 		return NULL;
@@ -14,7 +14,7 @@ char** setDoubleCharArray(char** out, char* in) {
 	char read = 0;
 
 	while ((read = *(in + allIndex)), read != '\n') {
-		if (read == ';') {
+		if (read == ',') {
 			out[outIndex][inIndex] = '\0';//end this string
 			outIndex++;//reset
 			inIndex = 0;
@@ -132,8 +132,10 @@ void getRelation(UNode * root, FILE * file) {
 	if (!property) return;
 	UNode * followingNode = getUNodeFromName_U(property[0], root);
 	UNode * followedNode = getUNodeFromName_U(property[1], root);
-	followingNode->following = insertAVL_F(followedNode->info, followingNode->following);
-	followedNode->followed = insertAVL_F(followingNode->info, followedNode->followed);
+	if(followedNode == NULL || followingNode == NULL || followedNode->info == NULL || followingNode->info == NULL){
+        followingNode->following = insertAVL_F(followedNode->info, followingNode->following);
+        followedNode->followed = insertAVL_F(followingNode->info, followedNode->followed);
+	}
 	freeDoubleCharArray(2, property);
 
 	while (1) {
@@ -148,6 +150,8 @@ void getRelation(UNode * root, FILE * file) {
 		if (!property) return;
 		UNode * followingNode = getUNodeFromName_U(property[0], root);
 		UNode * followedNode = getUNodeFromName_U(property[1], root);
+		if(followedNode == NULL || followedNode == NULL) continue;
+        if(followedNode->info == NULL || followingNode->info == NULL) continue;
 		followingNode->following = insertAVL_F(followedNode->info, followingNode->following);
 		followedNode->followed = insertAVL_F(followingNode->info, followedNode->followed);
 		freeDoubleCharArray(2, property);

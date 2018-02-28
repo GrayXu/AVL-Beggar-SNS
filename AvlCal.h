@@ -6,31 +6,38 @@ reNode would lead a AVL-Tree of friends set. GLOBAL
 MUST BE FREE after show
 */
 FNode * reNode;
-
+FNode * getSetIntersec(FNode * aFNode, FNode * bFNode);
 /**
 Second friend functions¡£
 A new AVL-Tree would be created to save those second-friends and return it for traversing outside.
 */
-void getSecFriend_U2T(UNode * uNode);
-FNode * getSecFriend(UNode * uNode) {
+void getSecFriend_U2T(FNode * fNode, UNode * uRoot);
+
+FNode * getSecFriend(UNode * uNode, UNode * uRoot) {
 	reNode = NULL;
 	//traverse this user-tree to call U21-func
-	getSecFriend_U2T(uNode);
+	FNode * friRoot = getSetIntersec(uNode->followed, uNode->following);//get first-friends
+//    traInsertAVL(friRoot);
+    getSecFriend_U2T(friRoot, uRoot);
+    destroyAVL_F(friRoot);
 	reNode = deleteAVL_F(uNode->info->name, reNode);//delete itself
 	//now we would get the root node we want
 	return reNode;
 }
 /**
 recursion, unode into tree
-call this func outside with a root node
+call this func outside with a root node of friends
 */
-void getSecFriend_U2T(UNode * uNode) {
-	if (uNode == NULL) {
+void getSecFriend_U2T(FNode * fNode, UNode * uRoot) {
+	if (fNode == NULL) {
 		return;
 	} else {
-		traInsertAVL(uNode->following);//insert all info to this returning tree
-		getSecFriend_U2T(uNode->left);
-		getSecFriend_U2T(uNode->right);
+	    UNode * uNode = getUNodeFromName_U(fNode->info->name, uRoot);
+	    FNode * friRoot = getSetIntersec(uNode->followed, uNode->following);
+        traInsertAVL(friRoot);
+        destroyAVL_F(friRoot);
+		getSecFriend_U2T(fNode->left, uRoot);
+		getSecFriend_U2T(fNode->right, uRoot);
 	}
 }
 
@@ -58,6 +65,7 @@ void traInsertAVL(FNode * node) {
 	}
 }
 
+FNode * reNodeIntersec = NULL;
 /**
 Traverse a FNode-AVL-Tree, check whether it exist in another F-A-L or not. yes->insert into returning tree
 Call this func outside with a root node.
@@ -68,8 +76,8 @@ void getIntersec_check_insert(FNode * node, FNode * sampleRoot) {
 		return;
 	} else {
 		FNode * resultNode = getFNodeFromName_F(node->info->name, sampleRoot);
-		if (resultNode) {//exist
-			reNode = insertAVL_F(resultNode->info, reNode);
+		if (resultNode) {//exist in another avl tree
+			reNodeIntersec = insertAVL_F(resultNode->info, reNodeIntersec);
 		}
 		getIntersec_check_insert(node->left, sampleRoot);
 		getIntersec_check_insert(node->right, sampleRoot);
@@ -80,10 +88,11 @@ void getIntersec_check_insert(FNode * node, FNode * sampleRoot) {
 set_intersection
 And the return-FNode should be destroyed outside.
 */
+
 FNode * getSetIntersec(FNode * aFNode, FNode * bFNode) {
-	reNode = NULL;
+	reNodeIntersec = NULL;
 	getIntersec_check_insert(aFNode, bFNode);
-	return reNode;
+	return reNodeIntersec;
 }
 
 
@@ -124,7 +133,7 @@ void getSetDiff_recursion(FNode * minusNode, FNode * sampleRoot) {
 	} else {
 		FNode * resultNode = getFNodeFromName_F(minusNode->info->name, sampleRoot);
 		if (resultNode == NULL) {//not exist
-			reNode = insertAVL_F(resultNode->info, reNode);
+			reNode = insertAVL_F(minusNode->info, reNode);
 		}
 		getSetDiff_recursion(minusNode->left, sampleRoot);
 		getSetDiff_recursion(minusNode->right, sampleRoot);

@@ -293,7 +293,7 @@ void showFriends() {
 		printInfo(3);
 	} else {
 		FNode * friendsRoot = getSetIntersec(getUNode->following, getUNode->followed);//BOTH
-		if (!friendsRoot) {
+		if (friendsRoot) {
 			printf("--------以下为该用户的所有好友--------\n");
 			traversePrint(friendsRoot); printf("\n");
 			destroyAVL_F(friendsRoot);
@@ -315,7 +315,7 @@ void showSecondFriend() {
 	if (!getUNode) {
 		printInfo(3);
 	} else {
-		FNode * secFriRoot = getSecFriend(getUNode);
+		FNode * secFriRoot = getSecFriend(getUNode, uRoot);
 		if (secFriRoot) {
 			printf("--------以下为该用户的二度好友--------\n");
 			traversePrint(secFriRoot); printf("\n");
@@ -341,7 +341,7 @@ void showCommonFollowing() {
 		char * userNameB = (char *)malloc(sizeof(char) * 30);
 		fgetsNoN(userNameB, 30, stdin);
 		UNode * uNodeB = getUNodeFromName_U(userNameB, uRoot);
-		if (!uNodeB) {
+		if (uNodeB) {
 			FNode * comFollowing = getSetIntersec(uNodeB->following, uNodeA->following);
 			if (comFollowing) {
 				printf("--------以下为他们的共同关注--------\n");
@@ -373,7 +373,7 @@ void showCommonFollowed() {
 		char * userNameB = (char *)malloc(sizeof(char) * 30);
 		fgetsNoN(userNameB, 30, stdin);
 		UNode * uNodeB = getUNodeFromName_U(userNameB, uRoot);
-		if (!uNodeB) {
+		if (uNodeB) {
 			FNode * comFollowed = getSetIntersec(uNodeB->followed, uNodeA->followed);
 			if (comFollowed) {
 				printf("--------以下为他们的共同粉丝--------\n");
@@ -405,7 +405,7 @@ void showCommonFriends() {
 		char * userNameB = (char *)malloc(sizeof(char) * 30);
 		fgetsNoN(userNameB, 30, stdin);
 		UNode * uNodeB = getUNodeFromName_U(userNameB, uRoot);
-		if (!uNodeB) {
+		if (uNodeB) {
 			FNode * friRootA = getSetIntersec(uNodeA->followed, uNodeA->following);
 			FNode * friRootB = getSetIntersec(uNodeB->followed, uNodeB->following);
 			FNode * comFriRoot = getSetIntersec(friRootA, friRootB);
@@ -439,7 +439,7 @@ void showUnionFriends() {
 		char * userNameB = (char *)malloc(sizeof(char) * 30);
 		fgetsNoN(userNameB, 30, stdin);
 		UNode * uNodeB = getUNodeFromName_U(userNameB, uRoot);
-		if (!uNodeB) {
+		if (uNodeB) {
 			FNode * friRootA = getSetIntersec(uNodeA->followed, uNodeA->following);
 			FNode * friRootB = getSetIntersec(uNodeB->followed, uNodeB->following);
 			FNode * unionFriRoot = getSetUnion(friRootA, friRootB);
@@ -473,7 +473,7 @@ void showOwnFriends() {
 		char * userNameB = (char *)malloc(sizeof(char) * 30);
 		fgetsNoN(userNameB, 30, stdin);
 		UNode * uNodeB = getUNodeFromName_U(userNameB, uRoot);
-		if (!uNodeB) {
+		if (uNodeB) {
 			FNode * friRootA = getSetIntersec(uNodeA->followed, uNodeA->following);
 			FNode * friRootB = getSetIntersec(uNodeB->followed, uNodeB->following);
 			FNode * ownFriRootA = getSetDifference(friRootA, friRootB);
@@ -509,7 +509,7 @@ void showOwnFriends() {
 void saveUser(UNode * node, FILE * file){
     if(!node) return;
     Info * info = node->info;
-    fprintf(file, "%s;%s;%d;%d\n", info->name, info->hobby, info->age, info->sex);
+    fprintf(file, "%s,%s,%d,%d\n", info->name, info->hobby, info->age, info->sex);
 
     saveUser(node->left, file);
     saveUser(node->right, file);
@@ -519,7 +519,7 @@ void saveUser(UNode * node, FILE * file){
 void saveRelation_2(FNode * node, FILE * file, char * following){
     if (!node) return;
 
-    fprintf(file, "%s;%s\n",following, node->info->name);//latter one is the followed
+    fprintf(file, "%s,%s\n",following, node->info->name);//latter one is the followed
 
     saveRelation_2(node->left, file, following);
     saveRelation_2(node->right, file, following);

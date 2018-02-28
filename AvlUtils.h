@@ -185,20 +185,20 @@ FNode * deleteAVL_F(char * key, FNode * node) {
 
 	int result = strcmp(key, node->info->name);
 	if (result < 0) {//go left
-		node->left = deleteAVL_F(key, node);
+		node->left = deleteAVL_F(key, node->left);
 		//check balance
 		if (getHeight_F(node->right) - getHeight_F(node->left) == 2) {
-			if (getHeight_F(node->right->left) > getHeight_F(node->right->right)) {
+			if (getHeight_F(node->right->left) >= getHeight_F(node->right->right)) {
 				node = RL_Rotation_F(node);
 			} else {
 				node = RR_Rotation_F(node);
 			}
 		}
 	} else if (result > 0) {//go right
-		node->right = deleteAVL_F(key, node);
+		node->right = deleteAVL_F(key, node->right);
 		//check balance
 		if (getHeight_F(node->left) - getHeight_F(node->right) == 2) {
-			if (getHeight_F(node->left->right) > getHeight_F(node->left->left)) {
+			if (getHeight_F(node->left->right) >= getHeight_F(node->left->left)) {
 				node = LR_Rotation_F(node);
 			} else {
 				node = LL_Rotation_F(node);
@@ -216,8 +216,10 @@ FNode * deleteAVL_F(char * key, FNode * node) {
 				node->right = deleteAVL_F(minFNode->info->name, node->right);
 			}
 		} else {
+		    FNode * delNode = node;
 			if (node->left) node = node->left;
 			else node = node->right;
+            free(delNode);
 		}
 	}
 
@@ -428,20 +430,20 @@ UNode * deleteAVL_U(char * key, UNode * node) {
 
 	int result = strcmp(key, node->info->name);
 	if (result < 0) {//go left
-		node->left = deleteAVL_U(key, node);
+		node->left = deleteAVL_U(key, node->left);
 		//check balance
 		if (getHeight_U(node->right) - getHeight_U(node->left) == 2) {
-			if (getHeight_U(node->right->left) > getHeight_U(node->right->right)) {
+			if (getHeight_U(node->right->left) >= getHeight_U(node->right->right)) {
 				node = RL_Rotation_U(node);
 			} else {
 				node = RR_Rotation_U(node);
 			}
 		}
 	} else if (result > 0) {//go right
-		node->right = deleteAVL_U(key, node);
+		node->right = deleteAVL_U(key, node->right);
 		//check balance
 		if (getHeight_U(node->left) - getHeight_U(node->right) == 2) {
-			if (getHeight_U(node->left->right) > getHeight_U(node->left->left)) {
+			if (getHeight_U(node->left->right) >= getHeight_U(node->left->left)) {
 				node = LR_Rotation_U(node);
 			} else {
 				node = LL_Rotation_U(node);
@@ -463,13 +465,6 @@ UNode * deleteAVL_U(char * key, UNode * node) {
 			if (node->left) node = node->left;
 			else node = node->right;
 
-			Info * delInfo = delNode->info;
-			//when you want to delete a UNode, which means this guy would be deleted including all infomation
-			if (delInfo) {
-				free(delInfo->name);
-				free(delInfo->hobby);
-				free(delInfo);
-			}
 			free(delNode);
 		}
 	}
