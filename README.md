@@ -33,6 +33,4 @@ generate_random_follow_relationships.py :	Scripts to generate random follow rela
 
 generate_random_user_infomation.py :  Scripts to generate random user infomation 
 
-TODO
--------
-Document would be finished later
+.pdf: Completed document for this repo in Chinese

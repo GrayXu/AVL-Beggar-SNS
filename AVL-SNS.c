@@ -408,7 +408,7 @@ void showCommonFriends() {
 		if (uNodeB) {
 			FNode * friRootA = getSetIntersec(uNodeA->followed, uNodeA->following);
 			FNode * friRootB = getSetIntersec(uNodeB->followed, uNodeB->following);
-			FNode * comFriRoot = getSetIntersec(friRootA, friRootB);
+			FNode * comFriRoot = getSetUnion(friRootA, friRootB);
 			destroyAVL_F(friRootA); destroyAVL_F(friRootB);//clear
 			if (comFriRoot) {
 				printf("--------以下为他们的所有好友--------\n");
